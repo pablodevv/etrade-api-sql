@@ -9,20 +9,20 @@ const port = process.env.PORT || 8100;
 app.use(cors());
 app.use(express.json());
 
-// Configuração do banco de dados
+
 const dbConfig = {
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
-    server: '6.tcp.ngrok.io',
+    server: process.env.DB_SERVER,
     database: process.env.DB_DATABASE,
     port: parseInt(process.env.DB_PORT, 10),
     options: {
-        encrypt: false, // Ajuste para true se usar Azure
+        encrypt: false,
         trustServerCertificate: true,
     },
 };
 
-// Rota para buscar os dados
+
 app.get("/dados", async (req, res) => {
     try {
         await sql.connect(dbConfig);
@@ -33,7 +33,7 @@ app.get("/dados", async (req, res) => {
     }
 });
 
-// Inicia o servidor
+
 app.listen(port, () => {
     console.log(`API rodando na porta ${port}`);
 });
