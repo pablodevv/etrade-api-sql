@@ -38,20 +38,17 @@ app.get("/tabelas", async (req, res) => {
 });
 
 
-app.get("/colunas/:tabela", async (req, res) => {
-    const { tabela } = req.params;
+app.get("/dados/:tabela/:coluna", async (req, res) => {
+    const { tabela, coluna } = req.params;
 
     try {
         await sql.connect(dbConfig);
-        const result = await sql.query(`
-            SELECT COLUMN_NAME
-            FROM INFORMATION_SCHEMA.COLUMNS
-            WHERE TABLE_NAME = '${tabela}'
-        `);
-        const colunas = result.recordset.map(item => item.COLUMN_NAME);
-        res.json(colunas);
+        // Monta a query dinamicamente com base na tabela e coluna passadas
+        const query = `SELECT ${coluna} FROM ${tabela}`;
+        const result = await sql.query(query);
+        res.json(result.recordset); // Retorna os dados encontrados
     } catch (err) {
-        res.status(500).send(`Erro ao listar colunas: ${err.message}`);
+        res.status(500).send(`Erro ao consultar dados: ${err.message}`);
     }
 });
 
@@ -70,7 +67,7 @@ app.get("/dados/:tabela/:coluna/:valor", async (req, res) => {
         const result = await request.query(query);
 
         if (result.recordset.length > 0) {
-            res.json(result.recordset); 
+            res.json(result.recordset);
         } else {
             res.status(404).send("Nenhum dado encontrado.");
         }
