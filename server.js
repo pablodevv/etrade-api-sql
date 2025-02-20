@@ -35,5 +35,5 @@ app.get("/dados", async (req, res) => {
 
 // Inicia o servidor
 app.listen(port, () => {
-    console.log(`API rodando em http://localhost:${port}`);
+    console.log(`API rodando na porta ${port}`);
 });
