@@ -9,6 +9,7 @@ const port = process.env.PORT || 8100;
 app.use(cors());
 app.use(express.json());
 
+// Configuração do banco de dados
 const dbConfig = {
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
@@ -16,66 +17,74 @@ const dbConfig = {
     database: process.env.DB_DATABASE,
     port: parseInt(process.env.DB_PORT, 10),
     options: {
-        encrypt: false,
+        encrypt: false, // Ajuste para true se usar Azure
         trustServerCertificate: true,
     },
 };
 
-
-app.get("/tabelas", async (req, res) => {
+// Função para pegar os dados de todas as tabelas
+async function getAllTablesData() {
     try {
+        // Conectar ao banco de dados
         await sql.connect(dbConfig);
-        const result = await sql.query(`
+
+        // Pega todas as tabelas do banco de dados
+        const tablesQuery =
             SELECT TABLE_NAME
             FROM INFORMATION_SCHEMA.TABLES
             WHERE TABLE_TYPE = 'BASE TABLE'
-        `);
-        const tabelas = result.recordset.map(item => item.TABLE_NAME);
-        res.json(tabelas);
-    } catch (err) {
-        res.status(500).send(err.message);
-    }
-});
+        ;
+        const tablesResult = await sql.query(tablesQuery);
+        const tables = tablesResult.recordset.map(item => item.TABLE_NAME);
 
-
-app.get("/dados/:tabela/:coluna", async (req, res) => {
-    const { tabela, coluna } = req.params;
-
-    try {
-        await sql.connect(dbConfig);
-        // Monta a query dinamicamente com base na tabela e coluna passadas
-        const query = `SELECT ${coluna} FROM ${tabela}`;
-        const result = await sql.query(query);
-        res.json(result.recordset); // Retorna os dados encontrados
-    } catch (err) {
-        res.status(500).send(`Erro ao consultar dados: ${err.message}`);
-    }
-});
-
-
-app.get("/dados/:tabela/:coluna/:valor", async (req, res) => {
-    const { tabela, coluna, valor } = req.params;
-
-    try {
-        await sql.connect(dbConfig);
-
-        const query = `SELECT * FROM ${tabela} WHERE ${coluna} = @valor`;
-
-        const request = new sql.Request();
-        request.input('valor', sql.VarChar, valor);
-
-        const result = await request.query(query);
-
-        if (result.recordset.length > 0) {
-            res.json(result.recordset);
-        } else {
-            res.status(404).send("Nenhum dado encontrado.");
+        // Para cada tabela, pega os dados e retorna
+        const data = {};
+        for (const table of tables) {
+            const dataQuery = SELECT * FROM ${table};
+            const tableData = await sql.query(dataQuery);
+            data[table] = tableData.recordset; // Adiciona os dados da tabela no objeto 'data'
         }
+
+        return data; // Retorna os dados de todas as tabelas
     } catch (err) {
-        res.status(500).send(`Erro ao consultar dados: ${err.message}`);
+        console.error('Erro ao buscar dados:', err.message);
+        throw err;
+    }
+}
+
+// Rota para obter todos os dados de todas as tabelas
+app.get("/dados", async (req, res) => {
+    try {
+        const allData = await getAllTablesData();
+        res.json(allData); // Retorna os dados de todas as tabelas
+    } catch (err) {
+        res.status(500).send(Erro: ${err.message});
     }
 });
 
+// Rota para juntar dados de tabelas diferentes
+app.get("/dados/juntar/:tabela1/:tabela2/:campo", async (req, res) => {
+    const { tabela1, tabela2, campo } = req.params;
+
+    try {
+        await sql.connect(dbConfig);
+
+        // Consulta para juntar duas tabelas
+        const query =
+            SELECT t1.*, t2.*
+            FROM ${tabela1} AS t1
+            JOIN ${tabela2} AS t2
+            ON t1.${campo} = t2.${campo}
+        ;
+        const result = await sql.query(query);
+
+        res.json(result.recordset); // Retorna os dados das duas tabelas unidas
+    } catch (err) {
+        res.status(500).send(Erro: ${err.message});
+    }
+});
+
+// Inicia o servidor
 app.listen(port, () => {
-    console.log(`API rodando na porta ${port}`);
+    console.log(API rodando na porta ${port});
 });
