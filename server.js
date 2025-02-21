@@ -37,9 +37,21 @@ async function getPaginatedTableData(page, limit) {
         const tablesResult = await sql.query(tablesQuery);
         const tables = tablesResult.recordset.map(item => item.TABLE_NAME);
 
-        // Para cada tabela, pega os dados com limite e página especificados
+        // Para armazenar os dados e o total de registros
         const data = {};
+        let totalRecords = 0;
+
+        // Para cada tabela, pega os dados com limite e página especificados
         for (const table of tables) {
+            // Consulta para contar o número total de registros na tabela
+            const countQuery = `
+                SELECT COUNT(*) AS totalRecords
+                FROM ${table}
+            `;
+            const countResult = await sql.query(countQuery);
+            totalRecords += countResult.recordset[0].totalRecords; // Soma o total de registros
+
+            // Consulta para pegar os dados da tabela com paginação
             const dataQuery = `
                 SELECT * FROM ${table}
                 ORDER BY (SELECT NULL)  -- Para garantir uma ordem (evita erros de paginação)
@@ -50,7 +62,15 @@ async function getPaginatedTableData(page, limit) {
             data[table] = tableData.recordset; // Adiciona os dados da tabela no objeto 'data'
         }
 
-        return data; // Retorna os dados paginados de todas as tabelas
+        // Calcular o número total de páginas
+        const totalPages = Math.ceil(totalRecords / limit);
+
+        // Retorna os dados e o número total de páginas
+        return {
+            data,
+            totalPages,
+            totalRecords
+        };
     } catch (err) {
         console.error('Erro ao buscar dados:', err.message);
         throw err;
@@ -60,11 +80,11 @@ async function getPaginatedTableData(page, limit) {
 // Rota para obter dados de todas as tabelas com paginação
 app.get("/dados", async (req, res) => {
     const page = parseInt(req.query.page) || 1; // Página inicial
-    const limit = parseInt(req.query.limit) || 10; // Limite de registros por página
+    const limit = parseInt(req.query.limit) || 5; // Limite de registros por página
 
     try {
         const allData = await getPaginatedTableData(page, limit);
-        res.json(allData); // Retorna os dados paginados de todas as tabelas
+        res.json(allData); // Retorna os dados paginados de todas as tabelas, totalPages e totalRecords
     } catch (err) {
         res.status(500).send(`Erro: ${err.message}`);
     }
