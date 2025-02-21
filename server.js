@@ -1,5 +1,3 @@
-Código API de ontem onde você filtra tabelas, tabelas-colunas, tabelas-colunas-valor pela URL:
-
 require("dotenv").config();
 const express = require("express");
 const sql = require("mssql");
