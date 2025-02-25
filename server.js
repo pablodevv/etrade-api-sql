@@ -38,14 +38,15 @@ app.get("/tabelas", async (req, res) => {
 });
 
 
-app.get("/dados/:tabela/:coluna", async (req, res) => {
-    const { tabela, coluna } = req.params;
+app.get("/dados/:tabela", async (req, res) => {
+    const { tabela } = req.params;
 
     try {
         await sql.connect(dbConfig);
 
-        const query = `SELECT ${coluna} FROM ${tabela}`;
+        const query = `SELECT * FROM ${tabela}`;
         const result = await sql.query(query);
+
         res.json(result.recordset);
     } catch (err) {
         res.status(500).send(`Erro ao consultar dados: ${err.message}`);
@@ -53,28 +54,33 @@ app.get("/dados/:tabela/:coluna", async (req, res) => {
 });
 
 
-app.get("/dados/:tabela/:coluna/:valor", async (req, res) => {
-    const { tabela, coluna, valor } = req.params;
+app.get("/consulta", async (req, res) => {
+    const { query } = req.query;
+
+    if (!query) {
+        return res.status(400).send("Query SQL não fornecida.");
+    }
+
+
+    const allowedKeywords = ['SELECT', 'FROM', 'WHERE', 'JOIN', 'GROUP BY', 'ORDER BY', 'HAVING'];
+    const queryLower = query.toUpperCase();
+
+
+    if (!allowedKeywords.some(keyword => queryLower.includes(keyword))) {
+        return res.status(400).send("Query contém palavras não permitidas.");
+    }
 
     try {
         await sql.connect(dbConfig);
 
-        const query = `SELECT * FROM ${tabela} WHERE ${coluna} = @valor`;
 
-        const request = new sql.Request();
-        request.input('valor', sql.VarChar, valor);
-
-        const result = await request.query(query);
-
-        if (result.recordset.length > 0) {
-            res.json(result.recordset);
-        } else {
-            res.status(404).send("Nenhum dado encontrado.");
-        }
+        const result = await sql.query(query);
+        res.json(result.recordset);
     } catch (err) {
         res.status(500).send(`Erro ao consultar dados: ${err.message}`);
     }
 });
+
 
 app.listen(port, () => {
     console.log(`API rodando na porta ${port}`);
