@@ -1,4 +1,4 @@
-# 🚀 ETrade API – Integração com SQL Server
+# ETrade API – Integração com SQL Server
 
 ![Node.js](https://img.shields.io/badge/Node.js-18.x-green?style=for-the-badge&logo=node.js) 
 ![SQL Server](https://img.shields.io/badge/SQL%20Server-2019-red?style=for-the-badge&logo=microsoftsqlserver) 
