@@ -7,26 +7,26 @@
 
 ---
 
-## ✨ Introdução
+## Introdução
 
 Bem-vindo ao **tutorial completo da ETrade API**!  
 Esta API foi desenvolvida em **Node.js** para integrar o banco de dados **SQL Server** local com a internet, permitindo **consultas SQL em tempo real** via requisições HTTP.  
 
 Com ela, você poderá:
 
-- ⚡ Executar **consultas SQL dinâmicas** (SELECT, JOIN, filtros, cálculos e muito mais).  
-- 🌎 Acessar dados em **tempo real** de qualquer lugar.  
-- 🔗 Expor seu banco local com **Ngrok** e integrá-lo a sistemas externos.  
-- 🛠️ Simplificar integrações e automatizações sem complicação.  
+- Executar **consultas SQL dinâmicas** (SELECT, JOIN, filtros, cálculos e muito mais).  
+- Acessar dados em **tempo real** de qualquer lugar.  
+- Expor seu banco local com **Ngrok** e integrá-lo a sistemas externos.  
+- Simplificar integrações e automatizações sem complicação.  
 
 ---
 
-## 📌 O que é a ETrade API?
+## O que é a ETrade API?
 
 A **ETrade API** é um middleware que conecta o **SQL Server** do sistema **ETrade** à internet.  
 Ela funciona como uma ponte que transforma consultas SQL em endpoints HTTP acessíveis remotamente.
 
-### 🔑 Principais Funcionalidades
+### Principais Funcionalidades
 - **Consultas SQL dinâmicas** via query string.  
 - **Respostas em tempo real** com dados atualizados.  
 - **Acesso remoto seguro** via túnel do Ngrok.  
@@ -34,9 +34,9 @@ Ela funciona como uma ponte que transforma consultas SQL em endpoints HTTP acess
 
 ---
 
-## 🛠️ Passo a Passo de Configuração
+## Passo a Passo de Configuração
 
-### 🔹 Passo 1 – Instalar e Configurar o SQL Server
+### Passo 1 – Instalar e Configurar o SQL Server
 1. Instale o **SQL Server 2019**.  
 2. Abra o **SQL Server Management Studio** e conecte-se:
    
@@ -51,18 +51,11 @@ Defina a porta 8100.
 
 Reinicie o serviço SQL Server (SQL2019).
 
-📸 Configuração do SQL Server
-
-
-
-🔹 Passo 2 – Baixar e Configurar o Ngrok
-Baixe o Ngrok.
+### Passo 2 – Baixar e Configurar o Ngrok
+1. Baixe o Ngrok.
 
 No CMD (Admin), execute:
 
-bash
-Copiar
-Editar
 ngrok tcp 8100
 O Ngrok gerará um endereço no formato:
 
